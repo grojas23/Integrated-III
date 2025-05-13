@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Game of Memory: History of Comunication</title>
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background: linear-gradient(to right, #e0eafc, #cfdef3);
+      text-align: center;
+      margin: 0;
+      padding: 0;
+    }
+    h1 {
+      margin-top: 30px;
+      font-size: 32px;
+      color: #333;
+      text-shadow: 1px 1px 1px white;
+    }
+    .game-board {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      margin: 40px auto;
+      max-width: 660px;
+      gap: 20px;
+    }
+    .card {
+      width: 150px;
+      height: 150px;
+      perspective: 1000px;
+      cursor: pointer;
+    }
+    .card-inner {
+      position: relative;
+      width: 100%;
+      height: 100%;
+      transform-style: preserve-3d;
+      transition: transform 0.6s;
+    }
+    .card.flipped .card-inner {
+      transform: rotateY(180deg);
+    }
+    .card-front, .card-back {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      backface-visibility: hidden;
+      border-radius: 12px;
+      overflow: hidden;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    }
+    .card-front {
+      transform: rotateY(180deg);
+      background-color: #fff;
+    }
+    .card-front img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+    .card-back {
+      background: linear-gradient(135deg, #2d2d2d 0%, #000000 100%);
+      color: WHITE;
+      font-size: 18px;
+      font-family: 'Courier New', Courier, monospace;
+      position: relative;
+      border: 2px solid white;
+      box-shadow: inset 0 0 10px rgba(255, 215, 0, 0.4);
+    }
+    .card-back::before {
+      content: "♦";
+      position: absolute;
+      top: 10px;
+      left: 10px;
+      font-size: 24px;
+      color: white;
+    }
+    .card-back::after {
+      content: attr(data-id);
+      position: absolute;
+      bottom: 10px;
+      right: 10px;
+      font-size: 20px;
+      font-weight: bold;
+      color: white;
+    }
+    .card-back span {
+      font-size: 20px;
+      font-weight: bold;
+      text-shadow: 1px 1px 2px white;
+    }
+  </style>
+</head>
+<body>
+  <h1>Game of Memory: History of Comunication</h1>
+  <div class="game-board" id="gameBoard"></div>
+
+  <script>
+    const images = [
+      "periodico.jpg",
+      "computadora.jpg",
+      "humo.jpg",
+      "telegrafo.jpg",
+      "telefono.jpg",
+      "radio.jpg",
+      "mensajes.jpg",
+      "sennas.jpg",
+      "maquina.jpg",
+      "carta.jpg"
+    ];
+
+    const gameBoard = document.getElementById("gameBoard");
+    let flippedCards = [];
+    let matched = 0;
+    let cards = [];
+
+    const orderedPairs = [];
+    images.forEach(img => {
+      orderedPairs.push(img, img);
+    });
+
+    // Create DOM cards
+    orderedPairs.forEach((imgSrc) => {
+      const card = document.createElement("div");
+      card.classList.add("card");
+
+      const cardInner = document.createElement("div");
+      cardInner.classList.add("card-inner");
+
+      const front = document.createElement("div");
+      front.classList.add("card-front");
+      const image = document.createElement("img");
+      image.src = `images/${imgSrc}`;
+      front.appendChild(image);
+
+      const back = document.createElement("div");
+      back.classList.add("card-back");
+      const backText = document.createElement("span");
+      backText.textContent = "Integrated 3";
+      back.appendChild(backText);
+
+      cardInner.appendChild(front);
+      cardInner.appendChild(back);
+      card.appendChild(cardInner);
+
+      card.addEventListener("click", () => {
+        if (flippedCards.length < 2 && !card.classList.contains("flipped")) {
+          card.classList.add("flipped");
+          flippedCards.push({ card, imgSrc });
+
+          if (flippedCards.length === 2) {
+            const [first, second] = flippedCards;
+            if (first.imgSrc === second.imgSrc) {
+              matched++;
+              flippedCards = [];
+              if (matched === images.length) {
+                setTimeout(() => alert("¡Has ganado!"), 500);
+              }
+            } else {
+              setTimeout(() => {
+                first.card.classList.remove("flipped");
+                second.card.classList.remove("flipped");
+                flippedCards = [];
+              }, 1000);
+            }
+          }
+        }
+      });
+
+      cards.push(card);
+    });
+
+    // Mostrar pares por 5 segundos
+    cards.forEach(card => {
+      card.classList.add("flipped");
+      gameBoard.appendChild(card);
+    });
+
+    // Luego barajar y ocultar
+    setTimeout(() => {
+      cards.forEach(card => card.classList.remove("flipped"));
+
+      // Barajar
+      cards.sort(() => 0.5 - Math.random());
+      gameBoard.innerHTML = "";
+      cards.forEach((card, index) => {
+        const back = card.querySelector(".card-back");
+        back.setAttribute("data-id", index + 1);
+        gameBoard.appendChild(card);
+      });
+    }, 5000);
+  </script>
+</body>
+</html>
